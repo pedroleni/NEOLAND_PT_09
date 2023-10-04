@@ -1,0 +1,11 @@
+figure {
+  width: 300px;
+}
+img {
+  width: 100px;
+}
+
+.app {
+  display: flex;
+  flex-wrap: wrap;
+}
