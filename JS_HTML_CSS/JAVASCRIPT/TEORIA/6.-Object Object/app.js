@@ -86,3 +86,14 @@ console.log(alumnoClaves[keyArray[0]]);
 
 // recordar que el objeto es una referencia de memoria por lo que aunque veais dos objectos que son identicos === os puede dar fal/*style*/`
 /// -------> para solucionar lo anterior tenemos que convertirlo a string --> toString()
+
+const objeto = {
+  name: "Pedro",
+  age: 30,
+};
+
+const JSONparseableString = JSON.stringify(objeto);
+console.log("🚀 ~ file: app.js:96 ~ JSONparseableString:", JSONparseableString);
+
+const parseObject = JSON.parse(JSONparseableString);
+console.log("🚀 ~ file: app.js:99 ~ parseObject:", parseObject);
