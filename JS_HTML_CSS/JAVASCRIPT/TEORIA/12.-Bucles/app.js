@@ -58,3 +58,115 @@ const recuentoLetras = (letra, frase) => {
 const quixote = "En un lugar de la mancha de .....";
 const conteoDeVeces = recuentoLetras("a", quixote);
 console.log("🚀 ~ file: app.js:60 ~ conteoDeVeces:", conteoDeVeces);
+
+//! ------------------------------------------------------------------------
+//? ........................... for in........................................
+//! ------------------------------------------------------------------------
+
+// para los object object
+
+const dog = {
+  name: "federico",
+  age: 3,
+  adress: {
+    CP: 28029,
+    street: "orense",
+  },
+};
+
+// dog.forEach((element) => {
+//   console.log(element);
+// });-------> no se puede porque el object object no es un elemento iterable
+
+for (let key in dog) {
+  //console.log(`La es ${key} y su valor es ${dog[key]}`);
+}
+
+//! ------------------------------------------------------------------------
+//? ........................... for of......................................
+//! ------------------------------------------------------------------------
+
+/// solo sirve para elementos iterables
+const dogExample = {
+  name: "federico",
+  age: 3,
+  adress: {
+    CP: 28029,
+    street: "orense",
+  },
+};
+
+// for (let element of dogExample) {
+//   console.log(element);
+// }-------> no se puede hacer un for of porque los object object no son iterables
+
+const comidas = ["macarrones", "espaguetis", "pollo", "fideos"];
+
+for (let comida of comidas) {
+  console.log(`Esta comida es ${comida}`);
+}
+
+const fraseExample = "Hola que tal estas ?";
+
+for (let char of fraseExample) {
+  console.log(`estamos recorriendo esta letra: ${char}`);
+}
+
+//! ------------------------------------------------------------------------
+//? ........................... forEach......................................
+//! ------------------------------------------------------------------------
+// SOLO PARA ELEMENTOS ITERABLES
+const numberRandom = [1, 2, 3, 5, 62, 13, 53, 245];
+
+numberRandom.forEach((number, index) => {
+  //console.log(`En la posicion ${index} es valor es ${number}`);
+});
+
+//todo --------------> sacamos el numero que es mayor del array --> devolver el numero mas grande y su posicion
+let numeroMayor = {
+  numero: 0,
+  index: 0,
+};
+numberRandom.forEach(
+  (item, index) =>
+    item > numeroMayor.numero &&
+    (numeroMayor.numero = item) &&
+    (numeroMayor.index = index)
+);
+
+console.log(numeroMayor);
+
+//! ------------------------------------------------------------------------
+//? ........................... MAP......................................
+//! ------------------------------------------------------------------------
+
+// no se puede para un string
+const fraseExampleMapeo = "Esto es un ejemplo de mapeo";
+
+// fraseExampleMapeo.map((letra, index) => {
+//   console.log(`Estamos iterando en la letra ${letra}`);
+// }); -----> no se puede porque en los string lo hariamos con el for of o el forEach
+
+// para los arrays si .--->
+
+const comidasMapeo = ["macarrones", "espaguetis", "pollo", "fideos"];
+comidasMapeo.map((comida, index) => {
+  console.log(comida);
+});
+
+//! ------------------------------------------------------------------------
+//? ........................... while......................................
+//! ------------------------------------------------------------------------
+
+let i = 0;
+let acumular = 0;
+
+while (i < 10) {
+  console.log(`me muevo y el i vale: ${i}`);
+  i++;
+}
+
+//! ------------------------ RESUMEN DE CUANDO UTILIZARLOS Y CON QUE-----------
+// string: for of, forEach, forNormal
+//array: for of, forEach, forNormal, map
+// object object: for in
