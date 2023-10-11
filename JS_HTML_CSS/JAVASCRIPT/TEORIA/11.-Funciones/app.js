@@ -62,8 +62,9 @@ const printOneArrow = () =>
 
 printOne();
 printOneArrow();
+
 //!----------------------------------------------------------------------
-// ------------> funcion que no tenga parametros pero si tenga return
+//? ------------> funcion que no tenga parametros pero si tenga return
 //!----------------------------------------------------------------------
 
 function logado() {
@@ -84,6 +85,42 @@ console.log("🚀 ~ file: app.js:83 ~ componenteOne:", componenteOne);
 
 const logadoOk = logadoArrow();
 console.log(logadoOk);
+
 //!----------------------------------------------------------------------
-// ------------> funcion que tenga parametros y que tenga un return
+//? ------------> funcion que tenga parametros y que tenga un return-----
 //!----------------------------------------------------------------------
+
+// 1) arguments no esta disponible en las arrow
+function sumar(a, b) {
+  console.log(arguments); /// los arguments es un coleccion de elementos que aparece su posicion y el valor de los parametros
+  console.log(arguments[1]);
+}
+sumar(2, 3);
+
+const sumaArrow = (a, b) => {
+  //console.log(arguments); -----> no se puede tener acceso a esta variable local, porque solo se crea en lass function
+};
+
+sumaArrow();
+
+// 2) Objectos personalizados con valores que guardan funciones ---> las arrow no tienen acceso a la propiedad this
+
+// object - object
+const obj = {
+  name: "Lucia",
+  sayHi: () => {
+    console.log(`hola que tal estas ${this.name}`);
+    let apellido = "lerida";
+  }, // this.name nos daria undefined
+};
+obj.sayHi(); // ------> thjis.name nos da undefined
+
+const objFunction = {
+  name: "Lucia",
+  sayHi: function () {
+    console.log(`hola que tal estas ${this.name}`);
+    let apellido = "lerida";
+  },
+};
+
+objFunction.sayHi(); // hola que tal estas Lucia----> si tenemos acceso a al this.name
