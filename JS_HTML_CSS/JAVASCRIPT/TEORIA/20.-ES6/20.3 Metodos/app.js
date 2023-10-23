@@ -82,3 +82,10 @@ console.log("🚀 ~ file: app.js:80 ~ someVeganOk:", someVeganOk);
 ///! ----------------------------------------------------------------------------
 ///? -----------------------------------REDUCE ------------------------------------
 ///! ----------------------------------------------------------------------------
+
+const numbers = [5, 5, 5, 5, 5];
+
+const total = numbers.reduce((acumulador, num, index) => acumulador + num, 30);
+
+// acc es igual incialmente a 30
+console.log("🚀 ~ file: app.js:89 ~ total:", total);
