@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form
+      action="/action.php"
+      target="_blank"
+      accept-charset="utf-8"
+      method="POST"
+    >
+      <label for="fname">First name:</label>
+      <input type="text" id="fname" name="fname" /><br /><br />
+      <label for="name">Name:</label>
+      <input type="text" id="fname" name="name" /><br /><br />
+      <label for="comments">Comentarios:</label>
+<textarea rows="4" cols="30" id="comments">Este será el contenido de los comentarios</textarea>
+      <input type="submit" value="Enviar" />
+
+
+    </form>
+    <form>
+        <br><br><br>
+      <fieldset style="display: flex; flex-direction: column">
+        <legend>Datos personales:</legend>
+        <label for="username">Username:</label>
+        <input
+          type="text"
+          name="username"
+          id="username"
+          placeholder="Pedro"
+          maxlength="10"
+          minlength="1"
+          required
+        />
+        <input type="password" name="" id="" />
+        <input type="number" name="" id="" />
+        <input type="range" name="" id="" />
+        <input type="date" name="" id="" />
+        <input type="datetime-local" name="" id="" />
+        <input type="week" name="" id="" />
+        <input type="checkbox" />
+        <input type="radio" name="prueba" id="" />
+        <input type="radio" name="prueba" id="" />
+      </fieldset>
+      <br><br>
+      <fieldset>
+        <legend>Son parecidos a botones</legend>
+        <select name="" id="">
+            <option>Batman</option>
+            <option>Spiderman</option>
+            <option>Thor</option>
+          <!--multiple para hacer seleccion de varios elementos en el select-->
+         
+
+          <optgroup label="Superheroe">
+            <option>Batman</option>
+            <option>Spiderman</option>
+            <option>Thor</option>
+          </optgroup>
+          <optgroup label="Personajes">
+            <option>Batman</option>
+            <option>Spiderman</option>
+            <option>Thor</option>
+          </optgroup>
+        </select>
+
+         <input type="text" list="items" />
+        <datalist id="items">
+            <option value="1">Opción 1</option>
+            <option value="2">Opción 2</option>
+            <option value="3">Opción 3</option>
+        </datalist>
+      </fieldset>
+      <br><br><br>
+      <fieldset>
+        <input type="color" name="" id="" />
+        <input type="file" name="" id="" />
+        <progress min="0" max="100" value="70" >70%</progress>
+        <input type="hidden">  
+        
+        
+        
+      </fieldset>
+      <br><br>
+      <input>
+        <button type="submit">Click</button>
+        <input type="submit" value="Enviar" />
+        <input type="reset" />
+        <input type="submit" value="Enviar" />
+        <input type="reset" />
+
+      </fieldset>
+    </form>
+
+    
+
+    
+
+
+  </body>
+</html>
