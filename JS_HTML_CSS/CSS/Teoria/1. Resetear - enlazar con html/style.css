@@ -1,0 +1,42 @@
+:root {
+  --fondo: black;
+  --color-primary: blue;
+  --font-size-xl: 4rem;
+}
+
+/* selector universal */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100vw;
+  min-height: 100vh;
+}
+
+body {
+  width: 100vw;
+  min-height: 100vh;
+  background: var(--fondo);
+}
+
+header {
+  width: 100vw;
+  height: 20vh;
+  background-color: blueviolet;
+}
+
+main {
+  width: 100vw;
+  min-height: 70vh;
+  background-color: azure;
+}
+
+footer {
+  width: 100vw;
+  height: 10vh;
+  background-color: blue;
+}

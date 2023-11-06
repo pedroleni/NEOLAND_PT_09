@@ -1,0 +1,43 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  width: 100vw;
+  min-height: 100vh;
+}
+
+main {
+  width: 100vw;
+  min-height: 70vh;
+  border: 1px solid black;
+}
+
+footer {
+  width: 100vw;
+  height: 10vh;
+  border: 1px solid black;
+}
+
+header {
+  width: 100vw;
+  height: 20vh;
+}
+
+p {
+  color: red;
+}
+
+.parrafo {
+  color: green !important;
+}
+
+#title {
+  color: blueviolet;
+}
+
+a[href="www.google.com"] {
+  color: aqua;
+}
