@@ -1,0 +1,30 @@
+/*Combinador de hermanos adyacentes + */
+
+.adyacente:nth-child(2) + .adyacente {
+  color: red;
+}
+
+.adyacente:first-of-type + .adyacente {
+  color: green;
+}
+
+.alumnos li:nth-child(2) + li {
+  color: red;
+}
+
+/* combinador general de hermanos ~ */
+
+h4:first-of-type ~ h4 {
+  color: blueviolet;
+}
+
+/* combinador de hijos >*/
+
+.alumnos > li {
+  color: pink;
+}
+
+/* todos los descendientes */
+.alumnos li {
+  color: brown;
+}
