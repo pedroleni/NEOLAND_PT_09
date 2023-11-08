@@ -109,3 +109,15 @@ input:read-write {
 input:required {
   background-color: black;
 }
+
+
+:root{
+  font-family: sans-serif;
+  --variable-primary: red
+}
+
+
+input{
+  color: var(--variable-primary)
+}
+

@@ -1,0 +1,28 @@
+ul > li {
+    list-style: none;
+}
+
+ul li::after{
+    content: "👌";
+
+}
+
+ul li::before{
+    content: "🌱";
+}
+
+h2::first-letter{
+    font-size: 4rem
+}
+
+p::first-line{
+    color: yellow;
+    font-size: 5rem
+}
+
+input::placeholder{
+    color: blue
+}
+
+
+
