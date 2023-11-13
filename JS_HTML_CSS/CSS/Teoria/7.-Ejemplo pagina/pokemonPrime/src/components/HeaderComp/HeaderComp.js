@@ -1,7 +1,9 @@
-import "./Header.css";
-//? 1) Funcion que da el template del componente
+import { PrintMain } from "../ContainerMain/ContainerMain";
+import "./HeaderComp.css";
+
 const template = () => `
-  <header>
+
+<header>
     <h1>Mi primera pagina</h1>
     <nav>
       <button class="btn-home">HOME</button>
@@ -11,9 +13,7 @@ const template = () => `
   </header>
 `;
 
-//? 2) Funcion que da los escuchadores del template
-const listeners = () => {
-  // EVENTO BTN HOME
+export const listenersNav = () => {
   const buttonHome = document.querySelector(".btn-home");
   buttonHome.addEventListener("click", () => {
     console.log("Pincho en btn home");
@@ -31,10 +31,6 @@ const listeners = () => {
     console.log("pincho en el profile");
   });
 };
-
-//? 3) Funcion que pinta el componente
 export const PrintHeader = () => {
-  /// IMPORTANTE --->
   document.querySelector("#app").innerHTML += template();
-  listeners();
 };
