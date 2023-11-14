@@ -1,4 +1,6 @@
-import { PrintMain } from "../ContainerMain/ContainerMain";
+import { PrintDasboardPage } from "../../pages/Dashboard/Dashboard";
+import { PrintHomePage } from "../../pages/Home/Home";
+import { PrintProfilePage } from "../../pages/Profile/Profile";
 import "./HeaderComp.css";
 
 const template = () => `
@@ -16,19 +18,19 @@ const template = () => `
 export const listenersNav = () => {
   const buttonHome = document.querySelector(".btn-home");
   buttonHome.addEventListener("click", () => {
-    console.log("Pincho en btn home");
+    PrintHomePage();
   });
 
   // EVENTO BTN DASHBOARD
   const buttonDashboard = document.querySelector(".btn-dashboard");
   buttonDashboard.addEventListener("click", () => {
-    console.log("pincho en el dashboard");
+    PrintDasboardPage();
   });
 
   // EVENTO PROFILE
   const buttonProfile = document.querySelector(".btn-profile");
   buttonProfile.addEventListener("click", () => {
-    console.log("pincho en el profile");
+    PrintProfilePage();
   });
 };
 export const PrintHeader = () => {

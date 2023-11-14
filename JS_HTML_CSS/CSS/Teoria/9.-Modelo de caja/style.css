@@ -1,0 +1,17 @@
+p {
+  width: 300px;
+  height: 300px;
+  overflow: auto;
+  -webkit-box-shadow: 9px -38px 89px 36px rgba(99, 52, 99, 0.56);
+  -moz-box-shadow: 9px -38px 89px 36px rgba(99, 52, 99, 0.56);
+  box-shadow: 9px -38px 89px 36px rgba(99, 52, 99, 0.56);
+  padding: 6rem;
+}
+
+div {
+  width: 300px;
+  height: 300px;
+  border: 1px solid red;
+  display: inline-block;
+  margin: 4rem;
+}

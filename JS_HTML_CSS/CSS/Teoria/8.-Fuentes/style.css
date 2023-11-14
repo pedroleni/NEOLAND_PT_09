@@ -1,0 +1,16 @@
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100;0,200;0,300;1,300&display=swap"); */
+
+@font-face {
+  font-family: "Formula";
+  src: url(./assets/fonts/Formula1-Regular.otf);
+  font-weight: 300;
+}
+
+:root {
+  font-family: "Roboto Condensed", sans-serif;
+  font-style: italic;
+}
+
+#styloSpecial {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}

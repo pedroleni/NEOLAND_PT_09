@@ -8,5 +8,6 @@ const template = () => `<footer><h3>Soy el footer 👌</h3></footer>`;
 // funcion principal que pinta y se exporta
 
 export const PrintFooter = () => {
+  // si EES INYECTAR UN TEMPLATE STRING SIEMPREE VA CON INNERHTML
   document.querySelector("#app").innerHTML += template();
 };
