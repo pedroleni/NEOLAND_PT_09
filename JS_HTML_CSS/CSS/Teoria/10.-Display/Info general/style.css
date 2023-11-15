@@ -1,0 +1,28 @@
+div{
+    border: 1px black solid;
+    background-color: azure;
+   
+}
+
+#padre{
+    width: 400px;
+}
+
+img{
+    width: 100px;
+}
+
+a{
+    width: 300px;
+    color: yellow
+}
+
+li{
+    width: 100px;
+    height: 50px;
+    background-color: blue;
+}
+
+img:first-of-type{
+    display: none
+}
