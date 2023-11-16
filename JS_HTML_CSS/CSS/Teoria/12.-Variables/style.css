@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+:root {
+    --fondo: #89b1d8;
+    --colorPrimary: #d22ac4;
+    --colorSecundary: #e5ae68;
+    --fontSize-XL: 4rem;
+    --backgroundSecundary: #020203;
+}
+
+
+body {
+    background-color: var(--fondo);
+}
+
+h1, h3, h4 {
+    color: var(--colorPrimary);
+    font-size: var(--fontSize-XL);
+}
+
+p {
+    background-color: var(--backgroundSecundary);
+    color: var(--colorSecundary);
+}

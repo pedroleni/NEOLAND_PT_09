@@ -1,0 +1,17 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.gridContainer {
+    display: grid;
+    height: 90vh;
+    grid-template-columns: 300px 100px 100px;
+    grid-template-rows: auto 100px 200px;
+    justify-content: center;
+}
+
+.gridContainer div {
+    border: 2px solid red;
+}
