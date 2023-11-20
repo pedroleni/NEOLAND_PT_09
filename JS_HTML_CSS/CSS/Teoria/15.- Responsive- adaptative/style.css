@@ -1,0 +1,34 @@
+body {
+  width: 50vw;
+  min-height: 100vh;
+  border: 1px solid black;
+}
+@media screen and (min-width: 320) and (max-width: 520) {
+  body {
+    width: 100vw;
+  }
+
+  h1 {
+    font-size: 10px;
+  }
+}
+
+@media screen and (min-width: 521) and (max-width: 780) {
+  body {
+    width: 100vw;
+  }
+
+  h1 {
+    font-size: 10px;
+  }
+}
+
+@media screen and (min-width: 781) {
+  body {
+    width: 100vw;
+  }
+
+  h1 {
+    font-size: 10px;
+  }
+}
