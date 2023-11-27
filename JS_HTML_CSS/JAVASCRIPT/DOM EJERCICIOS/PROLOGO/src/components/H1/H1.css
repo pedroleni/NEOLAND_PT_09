@@ -1,0 +1,7 @@
+body.dark h1 {
+  color: white;
+}
+body.dark button {
+  color: black;
+  background-color: white;
+}
