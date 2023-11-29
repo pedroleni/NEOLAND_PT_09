@@ -1,11 +1,11 @@
 import { PrintNav } from "../../Nav/Nav";
 import "./Header.css";
 
-const template = () => `<header>
-<h1>Soy el header</h1>
+const template = (texto) => `<header>
+<h1>${texto}</h1>
 </header>`;
 
-export const PrintHeader = () => {
-  document.getElementById("app").innerHTML += template();
+export const PrintHeader = (texto) => {
+  document.getElementById("app").innerHTML += template(texto);
   PrintNav();
 };

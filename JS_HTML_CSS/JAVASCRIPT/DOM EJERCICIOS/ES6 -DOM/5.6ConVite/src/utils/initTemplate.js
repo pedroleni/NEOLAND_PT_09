@@ -4,7 +4,7 @@ import { PrintMain } from "../Components/Estructura/Main/Main";
 import { Listener } from "../Components/Nav/Nav";
 
 export const initTemplate = () => {
-  PrintHeader();
+  PrintHeader("Soy el header 😃");
   PrintMain();
   PrintFooter();
   Listener();
