@@ -1,3 +1,5 @@
+import { PrintTemplateFooter, PrintTemplateHeader } from "../components";
+
 export const initTemplate = () => {
   const app = document.getElementById("app");
 
@@ -7,4 +9,7 @@ export const initTemplate = () => {
   const main = document.createElement("main");
 
   app.append(header, main, footer);
+
+  PrintTemplateHeader();
+  PrintTemplateFooter();
 };
