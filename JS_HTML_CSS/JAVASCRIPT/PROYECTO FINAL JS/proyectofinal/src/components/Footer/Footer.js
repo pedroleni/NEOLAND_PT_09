@@ -7,5 +7,3 @@ const template = () => `
 export const PrintTemplateFooter = () => {
   document.querySelector("footer").innerHTML = template();
 };
-
-export const hello = () => console.log("hello");

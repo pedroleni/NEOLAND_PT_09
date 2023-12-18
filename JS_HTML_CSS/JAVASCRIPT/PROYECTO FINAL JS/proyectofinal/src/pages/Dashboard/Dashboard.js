@@ -1,3 +1,4 @@
+import { initControler } from "../../utils";
 import "./Dashboard.css";
 
 const template = () => `
@@ -34,9 +35,15 @@ const template = () => `
   </div>
 `;
 
-const listeners = () => {};
+const listeners = () => {
+  const navigatePokemon = document.getElementById("navigatePokemon");
+  navigatePokemon.addEventListener("click", () => {
+    initControler("Pokemon");
+  });
+};
 
 export const PrintDashboard = () => {
   document.querySelector("nav").style.display = "flex";
   document.querySelector("main").innerHTML = template();
+  listeners();
 };

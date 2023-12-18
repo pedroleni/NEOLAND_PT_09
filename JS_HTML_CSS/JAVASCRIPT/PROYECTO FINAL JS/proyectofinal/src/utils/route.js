@@ -1,15 +1,16 @@
-import { PrintDashboard, PrintLogin } from "../pages";
+import { PrintDashboard, PrintLogin, PrintPokemonPage } from "../pages";
 
 export const initControler = (paginaQueVamosAPintar) => {
   switch (paginaQueVamosAPintar) {
     case undefined:
       localStorage.getItem("user") ? PrintDashboard() : PrintLogin();
+      break;
     case "Pokemon":
-      // la funcion qur pinta la pagina PrintPagePokemon()
+      PrintPokemonPage();
       break;
 
     case "Dashboard":
-      // la funcion qur pinta la pagina PrintPageDash()
+      PrintDashboard();
       break;
 
     case "Topo":
