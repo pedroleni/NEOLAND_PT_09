@@ -1,5 +1,13 @@
-import { PrintFigurePokemon } from "../../components";
-import { getDataPokemonBucle } from "../../utils";
+import {
+  PrintFigurePokemon,
+  PrintSelectTypePokemon,
+  PrintSpinner,
+} from "../../components";
+import {
+  filterDataPokeemon,
+  getDataPokemonBucle,
+  typePokemon,
+} from "../../utils";
 import "./Pokemon.css";
 
 const template = () =>
@@ -21,18 +29,36 @@ const template = () =>
 `;
 
 const getDataService = async () => {
+  PrintSpinner();
   const data = await getDataPokemonBucle();
+
+  // hacer una funcion que nos devuelva un array con los diferentes tipos de pokemon
+  const types = typePokemon(data);
+
+  /* ahora que tenemos los diferentes tipos de botones */
+  PrintSelectTypePokemon(types, data);
+
+  listeners(data);
   console.log(data);
   printGallery(data);
+  document.getElementById("spinner").innerHTML = "";
 };
 
-const printGallery = (dataPrint) => {
+export const printGallery = (dataPrint) => {
+  document.getElementById("galleryPokemon").innerHTML = "";
   dataPrint.map((pokemon) =>
     PrintFigurePokemon(pokemon.name, pokemon.id, pokemon.image, pokemon.type)
   );
 };
 
-const listeners = () => {};
+const listeners = (totalData) => {
+  const inputPokemon = document.getElementById("inputPokemon");
+
+  inputPokemon.addEventListener("input", (e) => {
+    const filterPokemon = filterDataPokeemon(totalData, e.target.value);
+    printGallery(filterPokemon);
+  });
+};
 
 export const PrintPokemonPage = () => {
   document.querySelector("main").innerHTML = template();

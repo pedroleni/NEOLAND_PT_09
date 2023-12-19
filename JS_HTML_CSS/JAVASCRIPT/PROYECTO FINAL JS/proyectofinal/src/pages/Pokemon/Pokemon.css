@@ -4,6 +4,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 2rem;
+  padding: 0 0 20vh 0;
 }
 
 #containerFilter {
