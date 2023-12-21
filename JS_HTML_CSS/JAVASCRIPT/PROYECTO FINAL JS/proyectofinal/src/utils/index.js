@@ -5,3 +5,5 @@ export * from "./axios";
 export * from "./dataPokermon";
 export * from "./filterDataPokeemon";
 export * from "./typePokemon";
+export * from "./numeroRandom";
+export * from "./Hangman";

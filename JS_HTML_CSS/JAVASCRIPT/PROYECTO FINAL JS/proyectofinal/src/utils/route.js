@@ -1,4 +1,9 @@
-import { PrintDashboard, PrintLogin, PrintPokemonPage } from "../pages";
+import {
+  PrintDashboard,
+  PrintLogin,
+  PrintPokemonPage,
+  printTemplateHangman,
+} from "../pages";
 
 export const initControler = (paginaQueVamosAPintar) => {
   switch (paginaQueVamosAPintar) {
@@ -11,6 +16,10 @@ export const initControler = (paginaQueVamosAPintar) => {
 
     case "Dashboard":
       PrintDashboard();
+      break;
+
+    case "Hangman":
+      printTemplateHangman();
       break;
 
     case "Topo":

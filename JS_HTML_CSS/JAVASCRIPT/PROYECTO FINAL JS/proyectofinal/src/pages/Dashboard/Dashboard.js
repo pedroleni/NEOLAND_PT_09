@@ -31,6 +31,15 @@ const template = () => `
           <h2>MEMORY GAME</h2>
         </figure>
       </li>
+      <li>
+        <figure id="navigateHangman">
+          <img
+            src="https://res.cloudinary.com/dtyjzv2xg/image/upload/v1683032970/ahorcado_so8kq4.png"
+            alt="go to hangman"
+          />
+          <h2>HANGMAN</h2>
+        </figure>
+      </li>
     </ul>
   </div>
 `;
@@ -39,6 +48,11 @@ const listeners = () => {
   const navigatePokemon = document.getElementById("navigatePokemon");
   navigatePokemon.addEventListener("click", () => {
     initControler("Pokemon");
+  });
+
+  const navigateHangman = document.getElementById("navigateHangman");
+  navigateHangman.addEventListener("click", () => {
+    initControler("Hangman");
   });
 };
 
