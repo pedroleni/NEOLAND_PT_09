@@ -32,6 +32,7 @@ const converToCSV = (data) => {
   // Escribiendo las cabeceras
   csv += headers.join(";") + "\n";
 
+  // Escribimos la info correspondiente a las columnas en sus respectivas filas
   data.forEach((row) => {
     headers.forEach((head, index) => {
       if (index > 0) {
