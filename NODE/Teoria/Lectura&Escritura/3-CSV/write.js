@@ -34,11 +34,12 @@ const converToCSV = (data) => {
 
   // Escribimos la info correspondiente a las columnas en sus respectivas filas
   data.forEach((row) => {
+    console.log("headers", headers);
     headers.forEach((head, index) => {
       if (index > 0) {
         csv += ";";
       }
-
+      console.log("row", row[head]);
       csv += row[head];
     });
 
