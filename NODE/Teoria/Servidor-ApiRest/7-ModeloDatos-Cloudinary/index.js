@@ -6,6 +6,12 @@ dotenv.config();
 
 const express = require("express");
 
+//!------------ TRAEMOS CLOUDINARY PARA PODR USARLO
+const { configCloudinary } = require("./src/middleware/files.middleware");
+
+// ejecutamos para que pueda ser usado
+configCloudinary();
+
 //!------------- CONECTAMOS CON BASE DE DATOS
 
 const { connect } = require("./src/utils/db");
@@ -25,7 +31,10 @@ const app = express();
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: false }));
 
-//!-------------- RUTAS
+//!-------------- RUTAS -------------
+
+const CharacterRouter = require("./src/api/routes/Character.routes");
+app.use("/api/v1/character", CharacterRouter);
 
 //!-------------- CUANDO NO ENCONTREMOS LA RUTA - GENERAMOS UN ERROR
 
