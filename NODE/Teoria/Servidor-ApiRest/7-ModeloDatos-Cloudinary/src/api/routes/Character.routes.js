@@ -17,6 +17,9 @@ const CharacterRouter = express.Router();
 // En medio de la ruta y del controlador (funión create)
 // Se encuentra el middleware de subida de ficheros a cloudinary
 // multer tiene el metodo SINGLE para subir una sola imagen
+//* por el req.file va a recibir una clave que se llama image y con esa
+//  * clave quiero que el midddleware upload me lo suba a cloudinary para este disponible cuando entre
+//  * al controlador mediante la req.file.path ===> esto es igual a la URL de la imagen en cloudinary
 CharacterRouter.post("/", upload.single("image"), create);
 
 module.exports = CharacterRouter;

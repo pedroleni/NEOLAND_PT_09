@@ -45,7 +45,11 @@ const create = async (req, res, next) => {
         .json("No se ha podido guaradar en la base de datos");
     }
   } catch (error) {
-    // Si ha habido un error durante el creado y guardado del Character
+    //! -----> solo entramos aqui en el catch cuando ha habido un error
+    /** SI HA HABIDO UN ERROR -----
+     * Tenemos que borrar la imagen en cloudinary porque se sube antes de que nos metamos en
+     * el controlador---> porque es un middleware que esta entre la peticion del cliente y el controlador
+     */
     // comprobar si hay imagen en req.file porqe si es asi se ha subido a cloudinary y hay borrarla
 
     req.file?.path && deleteImgCloudinary(catchImg);
