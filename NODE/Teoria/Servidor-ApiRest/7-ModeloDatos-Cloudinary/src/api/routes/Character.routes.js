@@ -12,7 +12,7 @@ const express = require("express");
 
 const CharacterRouter = express.Router();
 
-//!--------- AÑADIMOS NUESTRAS NUESTRAS
+//!--------- AÑADIMOS NUESTRAS RUTAS
 
 // En medio de la ruta y del controlador (funión create)
 // Se encuentra el middleware de subida de ficheros a cloudinary
@@ -20,6 +20,6 @@ const CharacterRouter = express.Router();
 //* por el req.file va a recibir una clave que se llama image y con esa
 //  * clave quiero que el midddleware upload me lo suba a cloudinary para este disponible cuando entre
 //  * al controlador mediante la req.file.path ===> esto es igual a la URL de la imagen en cloudinary
-CharacterRouter.post("/", upload.single("image"), create);
+CharacterRouter.post("/create", upload.single("image"), create);
 
 module.exports = CharacterRouter;

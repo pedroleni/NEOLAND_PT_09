@@ -12,6 +12,9 @@ const create = async (req, res, next) => {
 
   let catchImg = req.file?.path;
 
+  console.log("req body", req.body);
+  console.log("req file", req.file);
+
   try {
     //!-----> ACTUALIZAR INDEXES
     // Los indexes de forman cuando la clave es unica
@@ -26,7 +29,7 @@ const create = async (req, res, next) => {
     if (catchImg) {
       newCharacter.image = catchImg;
     } else {
-      // sio trae imagen la solicitud, le ponemos al character una imagen por defecto
+      // sino trae imagen la solicitud, le ponemos al character una imagen por defecto
       newCharacter.image =
         "https://res.cloudinary.com/dhkbe6djz/image/upload/v1689099748/UserFTProyect/tntqqfidpsmcmqdhuevb.png";
     }
@@ -36,7 +39,7 @@ const create = async (req, res, next) => {
 
     // Comprobamos si el character se ha guardado para lanzar una respuesta
     if (saveCharacter) {
-      //Si se ha guardado lanzamos una respiesta correcta con los datos del Character generados
+      //Si se ha guardado lanzamos una respuesta correcta con los datos del Character generados
       return res.status(200).json(saveCharacter);
     } else {
       // si no se ha guardado hay un error y lo lanzamos en la respuesta
