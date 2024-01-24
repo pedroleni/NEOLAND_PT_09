@@ -1,5 +1,6 @@
 //! traemos la funcion de borrado de imagenes por si el usuario al subir un nuevo character tiene un error que esa imagen se borre
 const { deleteImgCloudinary } = require("../../middleware/file.middleware");
+const enumOk = require("../../utils/enumOk");
 
 //!------- Nos traemos el modelo
 const Character = require("../models/Character.model");
@@ -92,4 +93,166 @@ const getAll = async (req, res, next) => {
 //!--------------------- GET - GET By ID --------------------
 //? -------------------------------------------------------
 
-module.exports = { create, getAll };
+const getById = async (req, res, next) => {
+  try {
+    // Hacemos destructuring del id traido por params
+    const { id } = req.params;
+
+    // Encontramos al character que tenga ese ID
+    //! POPULATE Nos permite obtener los datos de los campos populados
+    const characterById = await Character.findById(id).populate("movies");
+
+    // Comprobamos si se ha encontrado el character
+    if (characterById) {
+      return res.status(200).json(characterById);
+    } else {
+      return res.status(404).json("No se ha encontrado el character");
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Error al buscar por Id", message: error.message });
+  }
+};
+
+//? -------------------------------------------------------
+//!--------------------- GET - GET By NAME --------------------
+//? -------------------------------------------------------
+
+const getByName = async (req, res, next) => {
+  console.log(req);
+  try {
+    // Hacemos destructuring del name traido por params
+    const { name } = req.params;
+
+    // Buscamos al character que coincida en el name
+    const charactersByName = await Character.find({ name });
+    console.log(charactersByName);
+
+    // Si la longitud del array es mayor a 0 hay character con ese name y la respuesta es 200
+    if (charactersByName.length > 0) {
+      return res.status(200).json(charactersByName);
+    } else {
+      return res.status(404).json("No se han encontrado registros");
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "error durante la búsqueda", message: error.message });
+  }
+};
+
+//? -------------------------------------------------------
+//!--------------------- PATCH - UPDATE --------------------
+//? -------------------------------------------------------
+
+const update = async (req, res, next) => {
+  try {
+    let catchImage = req.file?.path;
+    await Character.syncIndexes();
+
+    // Traemos el ID de los params
+    const { id } = req.params;
+
+    // buscamos el character
+    const characterById = await Character.findById(id);
+
+    if (characterById) {
+      // guardamos la imagen que tiene el character en base de datos
+      const oldImage = characterById.image;
+
+      // Creamos un body custom con los datos , si los hay, del body
+      const bodyCustom = {
+        _id: characterById._id,
+        image: req.file?.path ? catchImage : oldImage,
+        name: req.body?.name ? req.body?.name : characterById.name,
+      };
+
+      // comprobamos si recibimos por el body el genero
+      if (req.body?.gender) {
+        // Si lo recibimos llamamos a la función de utils que valida el genero
+        const resultEnumOk = enumOk(req.body?.gender);
+        customBody.gender = resultEnumOk.check
+          ? req.body?.gender
+          : characterById.gender;
+      }
+
+      try {
+        // busque por id el Character y lo actualize con el customBody
+        await Character.findByIdAndUpdate(id, customBody);
+
+        // Miramos si han actualizado la imagen por si esto es asi, borrar la antigua
+        if (req.file?.path) {
+          deleteImgCloudinary(oldImage);
+        }
+
+        //** ---------------------------------------------------------------- */
+        //** TESTEAMOS EN TIEMPO REAL QUE ESTO SE HAYA REALIZADO CORRECTAMENTE */
+        //** ---------------------------------------------------------------- */
+
+        // Buscamos el elemento character YA actualizado mediante el id
+        const characterByIdUpdate = await Character.findById(id);
+
+        // Cogemos el req.body y le sacamos las CLAVES para saber que elementos han actualizado
+        const elementUpdate = Object.keys(req.body);
+
+        // Creamos un objeto vacío donde vamos a meter este test
+        let test = {};
+
+        // Recorremos las claves del body y rellenamos el objeto test
+
+        elementUpdate.forEach((item) => {
+          if (req.body[item] === characterByIdUpdate[item]) {
+            test[item] = true;
+          } else {
+            test[item] = false;
+          }
+        });
+
+        // Comprobamos que la imagen del caracter Actualizado coincide con la imagen nueva si la hay
+        // Si coinciden creamos una copia de test con una nueva clave que será file en true y sino estará en false
+        if (catchImage) {
+          characterByIdUpdate.image === catchImage
+            ? (test = { ...test, file: true })
+            : (test = { ...test, file: false });
+        }
+
+        //** Comprobamos que ninguna clave del test este en false, si hay alguna lanzamos un 409 porque alguna
+        //**  clave no se ha actualizado de forma correcta , si estan todas en true lanzamos un 200 que esta todo correcto*/
+
+        let acc = 0;
+
+        for (const key in test) {
+          // si esto es false añadimos uno al contador
+          test[key] === false && acc++;
+        }
+
+        // si acc es mayor que 0 lanzamos error porque hay alguna clave en false y eso es que no se ha actualizado
+
+        if (acc > 0) {
+          return res.status(409).json({ dataTest: test, update: false });
+        } else {
+          return res
+            .status(200)
+            .json({ dataTest: test, update: characterByIdUpdate });
+        }
+      } catch (error) {
+        return res
+          .status(409)
+          .json({
+            error: "No se ha podidio actualizar",
+            message: error.message,
+          });
+      }
+    } else {
+      // si el character con ese id no existe
+      return res.status(404).json("El character no ha sido encontrado");
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "No se ha podidio actualizar", message: error.message });
+  }
+};
+
+module.exports = { create, getAll, getById, getByName };

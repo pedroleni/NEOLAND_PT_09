@@ -31,6 +31,9 @@ app.use(express.urlencoded({ limit: "5mb", extended: false }));
 const CharacterRouter = require("./src/api/routes/Character.routes");
 app.use("/api/v1/character", CharacterRouter);
 
+const MovieRouter = require("./src/api/routes/Movie.routes");
+app.use("/api/v1/movie", MovieRouter);
+
 //! Generamos error cuando no se encuentre la ruta
 app.use("*", (req, res, next) => {
   const error = new Error("Ruta no encontrada");

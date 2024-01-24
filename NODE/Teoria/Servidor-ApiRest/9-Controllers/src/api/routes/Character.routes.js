@@ -4,7 +4,12 @@ const { upload } = require("../../middleware/file.middleware");
 
 //!-------- IMPORTAMOS LOS CONTROLADORES
 
-const { create, getAll } = require("../controllers/Character.controller");
+const {
+  create,
+  getAll,
+  getById,
+  getByName,
+} = require("../controllers/Character.controller");
 
 //!--------- CREAMOS UN ROUTER ESPECIFICO PARA CHARACTER --- al llamarlo disponemos de todas las rutas ---> será llamado en el index
 
@@ -22,5 +27,7 @@ const CharacterRouter = express.Router();
 //  * al controlador mediante la req.file.path ===> esto es igual a la URL de la imagen en cloudinary
 CharacterRouter.post("/create", upload.single("image"), create);
 CharacterRouter.get("/getAll/", getAll);
+CharacterRouter.get("/getById/:id", getById);
+CharacterRouter.get("/getByName/:name", getByName);
 
 module.exports = CharacterRouter;
