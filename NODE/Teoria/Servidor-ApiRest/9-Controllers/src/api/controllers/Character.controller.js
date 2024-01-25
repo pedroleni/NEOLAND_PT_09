@@ -4,6 +4,7 @@ const enumOk = require("../../utils/enumOk");
 
 //!------- Nos traemos el modelo
 const Character = require("../models/Character.model");
+const Movie = require("../models/Movie.model");
 
 //? -------------------------------------------------------
 //!--------------------- POST - CREATE --------------------
@@ -148,10 +149,11 @@ const getByName = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   try {
+    // comprobamos si en la solicitud hay una imagen (si hay nos van a cambiar la imagen del character)
     let catchImage = req.file?.path;
     await Character.syncIndexes();
 
-    // Traemos el ID de los params
+    // Traemos el ID de los params de este character a actualizar
     const { id } = req.params;
 
     // buscamos el character
@@ -172,18 +174,21 @@ const update = async (req, res, next) => {
       if (req.body?.gender) {
         // Si lo recibimos llamamos a la función de utils que valida el genero
         const resultEnumOk = enumOk(req.body?.gender);
-        customBody.gender = resultEnumOk.check
+        bodyCustom.gender = resultEnumOk.check
           ? req.body?.gender
           : characterById.gender;
       }
 
       try {
         // busque por id el Character y lo actualize con el customBody
-        await Character.findByIdAndUpdate(id, customBody);
+        await Character.findByIdAndUpdate(id, bodyCustom);
 
         // Miramos si han actualizado la imagen por si esto es asi, borrar la antigua
         if (req.file?.path) {
-          deleteImgCloudinary(oldImage);
+          // Si la imagen antigua es diferente a la que ponemos por defecto la borramos
+          oldImage !==
+            "https://res.cloudinary.com/dhkbe6djz/image/upload/v1689099748/UserFTProyect/tntqqfidpsmcmqdhuevb.png" &&
+            deleteImgCloudinary(oldImage);
         }
 
         //** ---------------------------------------------------------------- */
@@ -202,6 +207,7 @@ const update = async (req, res, next) => {
         // Recorremos las claves del body y rellenamos el objeto test
 
         elementUpdate.forEach((item) => {
+          // Compruebo el valor de las claves del body con los valores del character actualizado
           if (req.body[item] === characterByIdUpdate[item]) {
             test[item] = true;
           } else {
@@ -237,12 +243,10 @@ const update = async (req, res, next) => {
             .json({ dataTest: test, update: characterByIdUpdate });
         }
       } catch (error) {
-        return res
-          .status(409)
-          .json({
-            error: "No se ha podidio actualizar",
-            message: error.message,
-          });
+        return res.status(409).json({
+          error: "No se ha podidio actualizar",
+          message: error.message,
+        });
       }
     } else {
       // si el character con ese id no existe
@@ -255,4 +259,69 @@ const update = async (req, res, next) => {
   }
 };
 
-module.exports = { create, getAll, getById, getByName };
+//? -------------------------------------------------------
+//!--------------------- DELETE --------------------
+//? -------------------------------------------------------
+
+// Borramos el character cuyo ID traemos por params --> //! INCONISTENCIA --> borrar el registro de este id en los campos donde aparece
+//! en este caso aparece en ele array de characters en movie
+
+const deleteCharacter = async (req, res, next) => {
+  try {
+    // cogemos el id de los params
+    const { id } = req.params;
+
+    // buscamos y borramos el character
+    const character = await Character.findByIdAndDelete(id);
+
+    if (character) {
+      // Si existe el character --> borramos los registros donde aparece
+      //! comprobamos si ese character ha sido borrado
+      const characterDelete = await Character.findById(id);
+
+      //! --> borramos los registros de character en los arrys de movie donde aparece
+
+      try {
+        // UpdateMany --> actualiza todos los registros que contengan en character el id
+        // 1º parametro es el filtro
+        // 2º acción --> sacar de characters el id de ese Character borrado
+        await Movie.updateMany(
+          { characters: id },
+          { $pull: { characters: id } }
+        );
+
+        // verificamos que el character borrado no tengo la imagen por defecto para borrarla
+        character.image !==
+          "https://res.cloudinary.com/dhkbe6djz/image/upload/v1689099748/UserFTProyect/tntqqfidpsmcmqdhuevb.png" &&
+          deleteImgCloudinary(character.image);
+
+        // Lanzamos una respuesta dependiendo de si se ha encontrado el character borrado
+        return res.status(characterDelete ? 409 : 200).json({
+          deleteTest: characterDelete ? false : true,
+        });
+      } catch (error) {
+        return res.status(409).json({
+          error: "Error al borrar el character",
+          message: error.message,
+        });
+      }
+    } else {
+      // lanzamos una respuesta 404 que el character no ha sido encontrado
+      return res.status(404).json("El character no ha sido encontrado");
+    }
+  } catch (error) {
+    return res.status(409).json({
+      error: "Error al borrar el character",
+      message: error.message,
+    });
+  }
+};
+
+module.exports = {
+  create,
+  getAll,
+  getById,
+  getByName,
+  update,
+  deleteCharacter,
+};

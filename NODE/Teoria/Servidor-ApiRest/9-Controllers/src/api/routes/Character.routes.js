@@ -9,6 +9,8 @@ const {
   getAll,
   getById,
   getByName,
+  update,
+  deleteCharacter,
 } = require("../controllers/Character.controller");
 
 //!--------- CREAMOS UN ROUTER ESPECIFICO PARA CHARACTER --- al llamarlo disponemos de todas las rutas ---> será llamado en el index
@@ -29,5 +31,7 @@ CharacterRouter.post("/create", upload.single("image"), create);
 CharacterRouter.get("/getAll/", getAll);
 CharacterRouter.get("/getById/:id", getById);
 CharacterRouter.get("/getByName/:name", getByName);
+CharacterRouter.patch("/update/:id", upload.single("image"), update);
+CharacterRouter.delete("/delete/:id", deleteCharacter);
 
 module.exports = CharacterRouter;
