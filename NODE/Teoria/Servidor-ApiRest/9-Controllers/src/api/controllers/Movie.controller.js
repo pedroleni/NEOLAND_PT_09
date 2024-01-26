@@ -63,6 +63,7 @@ const toggleCharacters = async (req, res, next) => {
       // Lo metemos en una promesa debido al mapeo que es asincrono y asi no tenemos problemas
       Promise.all(
         arrayCharacters.map(async (character) => {
+          console.log("character", character);
           if (movieById.characters.includes(character)) {
             // Si lo incluye hay que quitarlo ( character al array de characters de movie)
             //** LO QUITAMOS PORQUE LO INCLUYE */
