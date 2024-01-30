@@ -1,5 +1,5 @@
 //!-------- nos traemos UPLOAD (función de multer para subida de ficheros)
-7;
+
 const { upload } = require("../../middleware/file.middleware");
 
 //!-------- IMPORTAMOS LOS CONTROLADORES
