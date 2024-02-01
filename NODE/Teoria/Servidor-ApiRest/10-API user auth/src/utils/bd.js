@@ -18,12 +18,7 @@ const connect = async () => {
   try {
     // conectamos con nuestra base de datos
 
-    const db = await mongoose.connect(MONGO_URI, {
-      // parsea la url de MONGO
-      useNewUrlParser: true,
-      // convertir los caracteres especiales
-      useUnifiedTopology: true,
-    });
+    const db = await mongoose.connect(MONGO_URI);
 
     // Hacemos destructuring de nombre y host de nuestra base de datos
 

@@ -1,9 +1,12 @@
+const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
 dotenv.config();
 const nodemailer = require("nodemailer");
 const randomCode = require("../../utils/randomCode");
 const User = require("../models/User.model");
 const { deleteImgCloudinary } = require("../../middleware/file.middleware");
+const { generateToken } = require("../../utils/token");
+const randomPassword = require("../../utils/randomPAssword");
 
 //! -----------------------------------------------------------------------------
 //? ----------------------- REGISTER LARGO CON ENVIO DE CÓDIGO AL EMAIL ---------
@@ -361,10 +364,234 @@ const checkNewUser = async (req, res, next) => {
   }
 };
 
+//! -----------------------------------------------------------------------------
+//? --------------------------------- LOGIN -------------------------------------
+//! -----------------------------------------------------------------------------
+
+const login = async (req, res, next) => {
+  try {
+    // hacemos destructuring del email y la pass del req.body
+    const { email, password } = req.body;
+
+    // buscamos a este usuario por el email
+    const userDB = await User.findOne({ email });
+
+    // Comprobamos si el user existe en la DB
+    if (userDB) {
+      // Tenemos que comparar las contraseñas
+      //** Contraseña de base de datos esta ENCRIPTADA */
+      //** BCRYP --> para poder comparar la pass una con una pass encriptada */
+      if (bcrypt.compareSync(password, userDB.password)) {
+        // si coinciden devuelve true y puedo generar el token
+        //** TOKEN */
+        const token = generateToken(userDB._id, email);
+
+        // Una vez generado enviamos una respuesta con el user y este token
+        return res.status(200).json({
+          user: userDB,
+          token,
+        });
+      } else {
+        // Las contraseñas no coinciden
+        return res.status(409).json({
+          error: "Contraseña incorrecta",
+          message: "Intentalo otra vez",
+        });
+      }
+    } else {
+      // Error user no encontrado
+      return res
+        .status(404)
+        .json({ error: "User no encontrado", message: "User no registrado" });
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Error en el login", message: error.message });
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? ------------------------------- AUTOLOGIN -----------------------------------
+//! -----------------------------------------------------------------------------
+
+const autoLogin = async (req, res, next) => {
+  try {
+    // destructuring del email y pass del body
+    const { email, password } = req.body;
+
+    // Buscamos al user en la DB
+    const userDB = await User.findOne({ email });
+
+    // Comprobamos que el user exista en la base de datos
+    if (userDB) {
+      // Comprobamos si las contraseñas coinciden
+      //** En este caso se comparan las 2 contraseñas ENCRIPTADAS */
+      if (password === userDB.password) {
+        // Si coinciden generamos el token
+        const token = generateToken(userDB._id, email);
+
+        // Enviamos la respuesta con el token
+        return res.status(200).json({
+          user: userDB,
+          token,
+        });
+      } else {
+        // Lanzamos error en contraseña
+        return res.status(409).json({
+          error: "Contraseña incorrecta",
+          message: "Intentalo otra vez",
+        });
+      }
+    } else {
+      // Lanzamos un error user no encontrado
+      return res
+        .status(404)
+        .json({ error: "User no encontrado", message: "User no registrado" });
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Error en el login", message: error.message });
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? ----------------------  CAMBIO COBTRASEÑA NO LOGUEADO------------------------
+//! -----------------------------------------------------------------------------
+
+const forgotPassword = async (req, res, next) => {
+  try {
+    // nos traemos el email del body mediante destructuring
+    const { email } = req.body;
+
+    // Buscamos al user para ver si existe
+    const userDB = await User.findOne({ email });
+
+    if (userDB) {
+      // Si el user existe hacemos el redirect que envia el correo con las pass nueva
+      //! redirect -- 307
+      return res.redirect(
+        307,
+        `http://localhost:8081/api/v1/user/forgot/sendPassword/${userDB._id}`
+      );
+    } else {
+      // User no encontrado
+      return res
+        .status(404)
+        .json({ error: "User no encontrado", message: "Revise el email" });
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Error al cambio de contraseña", message: error.message });
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? --------------------------------- SEND PASSWORD   ---------------------------
+//! -----------------------------------------------------------------------------
+
+const sendPassword = async (req, res, next) => {
+  try {
+    // traemos el id por req.params
+    const { id } = req.params;
+
+    // Buscamos al user
+    const userDB = await User.findById(id);
+
+    //Comprobamos si el user existe
+
+    if (userDB) {
+      // generamos password segura random y la enviamos
+      const passwordSecure = randomPassword();
+
+      //todo ------> ENVIO DEL CORREO
+      // llamamos a las variables de entorno
+      const emailENV = process.env.EMAIL;
+      const passwordENV = process.env.PASSWORD;
+
+      // creamos el transport
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: emailENV,
+          pass: passwordENV,
+        },
+      });
+
+      // creamos las opciones del mensaje
+      const mailOptions = {
+        from: emailENV,
+        to: userDB.email, // se lo enviamos al user registrado
+        subject: "INFO",
+        text: `User: ${userDB.name}, su nuevo código de login es: ${passwordSecure} Nos ponemos en contacto con uste porque hemos recibido una solicitud de olvido de contraseña`,
+      };
+
+      // enviamos el email
+      transporter.sendMail(mailOptions, async (error, info) => {
+        if (error) {
+          return res
+            .status(409)
+            .json({ error: "correo no enviado", message: error });
+        } else {
+          //** ENCRIPTAMOS CONTRASEÑA para actualizar al user con esta contraseña encriptada */
+          const newPasswordEncript = bcrypt.hashSync(passwordSecure, 10);
+
+          try {
+            // Intentamos actualizar el user
+            await User.findByIdAndUpdate(id, { password: newPasswordEncript });
+
+            // todo --> TEST comprobar que el user se ha actualizado correctamente
+
+            // buscamos al user actualizado para comparar su contraseña encriptada con la enviada
+            const userUpdate = await User.findById(id);
+
+            // Compruebo la nueva contraseña segura con la contraseña encriptada que tiene el user guardado actualizado
+            if (bcrypt.compareSync(passwordSecure, userUpdate.password)) {
+              // si es true se ha actualizado de forma correcta
+              return res.status(200).json({
+                updateUser: true,
+                sendPassword: true,
+              });
+            } else {
+              // Si las contraseñas no coinciden el user no se ha actualizado de forma correcta
+              return res.status(409).json({
+                error: "User no actualizado",
+                message: "Se envio la nueva contraseña",
+              });
+            }
+          } catch (error) {
+            // error al actualizar el user
+            return res.status(409).json({
+              error: "Error al actualizar el user",
+              message: error.message,
+            });
+          }
+        }
+      });
+    } else {
+      // Error el user no existe
+      return res
+        .status(404)
+        .json({ error: "User no encontrado", message: "Mal email" });
+    }
+  } catch (error) {
+    return res.status(409).json({
+      error: "Error durante el envio del correo",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerLargo,
   registerWithRedirect,
   sendCode,
   resendCode,
   checkNewUser,
+  login,
+  autoLogin,
+  forgotPassword,
+  sendPassword,
 };
