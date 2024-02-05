@@ -282,9 +282,9 @@ const deleteCharacter = async (req, res, next) => {
       //! --> borramos los registros de character en los arrys de movie donde aparece
 
       try {
-        // UpdateMany --> actualiza todos los registros que contengan en character el id
+        // UpdateMany --> actualiza todos los registros que contengan en characters el id del character
         // 1º parametro es el filtro
-        // 2º acción --> sacar de characters el id de ese Character borrado
+        // 2º acción --> en Movie sacar del array de characters el id de ese Character borrado
         await Movie.updateMany(
           { characters: id },
           { $pull: { characters: id } }
