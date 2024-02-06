@@ -1,3 +1,4 @@
+const { isAuth, isAuthAdmin } = require("../../middleware/auth.middleware");
 const { upload } = require("../../middleware/file.middleware");
 const {
   registerLargo,
@@ -9,6 +10,8 @@ const {
   autoLogin,
   forgotPassword,
   sendPassword,
+  exampleAuth,
+  changePassword,
 } = require("../controllers/User.controllers");
 
 const UserRoutes = require("express").Router();
@@ -27,6 +30,13 @@ UserRoutes.post("/login", login);
 UserRoutes.post("/autoLogin", autoLogin);
 
 UserRoutes.patch("/forgotPassword", forgotPassword); // redirect sendPassword
+
+//! ------ RUTAS AUTENTICADAS ------
+//** middleware isAuth --> verifica que tenemos token */
+//** isAuthAdmin --> verifica que tenemos token y somos rol = Admin */
+UserRoutes.get("/pruebas", [isAuthAdmin], exampleAuth);
+
+UserRoutes.patch("/changePassword", [isAuth], changePassword);
 
 // ----------------- Controladores usados por redirect
 UserRoutes.post("/register/sendMail/:id", sendCode);

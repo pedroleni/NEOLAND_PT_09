@@ -20,6 +20,7 @@ const isAuth = async (req, res, next) => {
   //** hay que quitar la palabra BEARER que viene donde el token */
   // reemplazamos bearer y ponemos un string vacio ""
   const token = req.headers.authorization?.replace("Bearer ", "");
+  console.log("CABECERAS", req.headers.authorization);
 
   //** comprobamos si hay token y sino lanzamos un error */
   if (!token) {
@@ -66,11 +67,19 @@ const isAuthAdmin = async (req, res, next) => {
 
     // Comprobamos que el rol sea de admin
     if (req.user.rol !== "admin") {
-      return next("No autorizado, no eres admin");
+      return next(new Error("No autorizado, no eres admin"));
+    } else {
+      next();
     }
 
+    // next() --> se puede poner fuera del else
+
     // Si eres admin continuamos
-  } catch (error) {}
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Problemas con el token", message: error.message });
+  }
 };
 
 module.exports = { isAuth, isAuthAdmin };

@@ -1,12 +1,15 @@
 const bcrypt = require("bcrypt");
 const dotenv = require("dotenv");
-dotenv.config();
 const nodemailer = require("nodemailer");
-const randomCode = require("../../utils/randomCode");
+const validator = require("validator");
+dotenv.config();
+
 const User = require("../models/User.model");
+
 const { deleteImgCloudinary } = require("../../middleware/file.middleware");
 const { generateToken } = require("../../utils/token");
 const randomPassword = require("../../utils/randomPAssword");
+const randomCode = require("../../utils/randomCode");
 
 //! -----------------------------------------------------------------------------
 //? ----------------------- REGISTER LARGO CON ENVIO DE CÓDIGO AL EMAIL ---------
@@ -584,6 +587,104 @@ const sendPassword = async (req, res, next) => {
   }
 };
 
+//! -----------------------------------------------------------------------------
+//! -----------------------------------------------------------------------------
+//! -----------------------------------------------------------------------------
+//** */ -----------------------------  RUTAs AUTENTICADAs -----------------------
+//! -----------------------------------------------------------------------------
+//! -----------------------------------------------------------------------------
+//! -----------------------------------------------------------------------------
+//! -----------------------------------------------------------------------------
+
+//! -----------------------------------------------------------------------------
+//? -----------------------------  EJEMPLO RUTA AUTENTICADA ---------------------
+//! -----------------------------------------------------------------------------
+
+const exampleAuth = async (req, res, next) => {
+  try {
+    console.log("req.user", req.user);
+    console.log("req.headers", req.headers);
+    // const userDB = await User.findById(req.user._id);
+    const userDB = await User.findOne({ name: req.user.name });
+    return res.status(200).json(userDB);
+  } catch (error) {
+    console.log(error);
+    return res.status(409).json(error.message);
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? ----------------- CAMBIO DE CONTRASEÑA UNA VEZ AUTENTICADO ------------------
+//! -----------------------------------------------------------------------------
+
+const changePassword = async (req, res, next) => {
+  try {
+    // Recogemos del body la contraseña antigua y nueva
+    const { password, newPassword } = req.body;
+
+    // Tenemos que comprobar que la contraseña sea fuerte (strongPassword) mediante validator
+
+    const validate = validator.isStrongPassword(newPassword);
+
+    if (validate) {
+      // Sacamos el id del usuario (esta autenticado --> req.user)
+      const { _id } = req.user;
+
+      // Comprobamos que la contraseña que introduce antigua coincide con la guardada en la base de datos
+      // La guardada esta encriptada --> bcrypt --> COMPARESYNC
+
+      if (bcrypt.compareSync(password, req.user.password)) {
+        // Si coinciden haseamos (ENCRIPTAMOS) contraseña y actualizamos el user
+        const newPasswordHashed = bcrypt.hashSync(newPassword, 10);
+
+        try {
+          // Actualizamos el user
+          //! no hacer .save()
+
+          await User.findByIdAndUpdate(_id, { password: newPasswordHashed });
+
+          // todo ------> TEST ------- en tiempo real para ver si el user se ha actualizado
+
+          const userSave = await User.findById(_id);
+
+          // Comprobamos la contraseña del user ya actualizado
+          if (bcrypt.compareSync(newPassword, userSave.password)) {
+            // Si es correcto enviamos una respuesta correcta
+            return res.status(200).json({ user: userSave, testUpdate: true });
+          } else {
+            // No se ha actualizado el user
+            return res.status(409).json({ testUpdate: false });
+          }
+        } catch (error) {
+          // Error al actualizar el user
+          return res.status(409).json({
+            error: "Error al actualizar el user",
+            message: error.message,
+          });
+        }
+      } else {
+        // error las contraseñas no coinciden
+        return res.status(409).json({
+          error: "Contraseña antigua incorrecta",
+          message: "Pruebe otra contraseña",
+        });
+      }
+    } else {
+      // Mandamos un error la pass no es segura
+      return res.status(409).json({
+        error: "La contraseña nueva no es segura",
+        message:
+          "8 caracteres, 1 simbolo, 1 mayuscula, 1 minuscula y un numero",
+      });
+    }
+  } catch (error) {
+    return res.status(409).json({
+      error: "Error al cambiar la contraseña",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerLargo,
   registerWithRedirect,
@@ -594,4 +695,6 @@ module.exports = {
   autoLogin,
   forgotPassword,
   sendPassword,
+  exampleAuth,
+  changePassword,
 };
