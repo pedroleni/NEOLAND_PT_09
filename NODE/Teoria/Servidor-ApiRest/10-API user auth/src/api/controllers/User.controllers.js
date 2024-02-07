@@ -10,6 +10,7 @@ const { deleteImgCloudinary } = require("../../middleware/file.middleware");
 const { generateToken } = require("../../utils/token");
 const randomPassword = require("../../utils/randomPAssword");
 const randomCode = require("../../utils/randomCode");
+const enumOk = require("../../utils/enumOk");
 
 //! -----------------------------------------------------------------------------
 //? ----------------------- REGISTER LARGO CON ENVIO DE CÓDIGO AL EMAIL ---------
@@ -645,6 +646,7 @@ const changePassword = async (req, res, next) => {
 
           // todo ------> TEST ------- en tiempo real para ver si el user se ha actualizado
 
+          // Este es el usuario ya actualizado
           const userSave = await User.findById(_id);
 
           // Comprobamos la contraseña del user ya actualizado
@@ -674,12 +676,182 @@ const changePassword = async (req, res, next) => {
       return res.status(409).json({
         error: "La contraseña nueva no es segura",
         message:
-          "8 caracteres, 1 simbolo, 1 mayuscula, 1 minuscula y un numero",
+          "Minimo 8 caracteres, 1 simbolo, 1 mayuscula, 1 minuscula y un numero",
       });
     }
   } catch (error) {
     return res.status(409).json({
       error: "Error al cambiar la contraseña",
+      message: error.message,
+    });
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? ---------------------------------     UPDATE --------------------------------
+//! -----------------------------------------------------------------------------
+
+const updateUser = async (req, res, next) => {
+  try {
+    // campuramos la imagen nueva subida a cloudinary (si viene en req.file)
+    let catchImg = req.file?.path;
+
+    // Actualizamos los modelos unicos del modelo
+    await User.syncIndexes();
+
+    // Hacemos una nueva instancia de User con los datos traidos del body
+    const patchUser = new User(req.body);
+
+    // Comprobamos que el req.file traiga la imagen para añadirla al user Actualizado
+    // if (req.file) {
+    //   patchUser.image = catchImg;
+    // }
+    req.file && (patchUser.image = catchImg);
+
+    //** */ Salvoguardo la info que el user NO quiero que cambie
+    //** MANTENEMOS LA INFO QUE EL USER TIENE EN LA BASE DE DATOS */
+    patchUser._id = req.user._id;
+    patchUser.password = req.user.password;
+    patchUser.rol = req.user.rol;
+    patchUser.confirmationCode = req.user.confirmationCode;
+    patchUser.email = req.user.email;
+    patchUser.check = req.user.check;
+
+    // Comprobamos mediante la funcion de enumOk si el user quiere cambiar el genero, que éste este entre las opciones
+    // Compruebo que el user quiere cambiar el genero guardado
+    if (req.body?.gender) {
+      const resultEnum = enumOk(req.body?.gender);
+      patchUser.gender = resultEnum.check ? req.body.gender : req.user.gender;
+    }
+
+    //** ACTUALIZAMOS EL USER */
+
+    try {
+      //! NO HACER MEDIANTE .SAVE()
+      //** FINDBYIDANDUPDATE --> busca al user mediante el id y lo actualiza
+      //** 1) id con el buscamos/
+      //** 2) la info con la que vamos a actualizar a este user */
+
+      await User.findByIdAndUpdate(req.user._id, patchUser);
+
+      // todo ------------------- TEST TIEMPO REAL ----- RUNTIME ----------------------------
+      //** COMPARAR EL USER ACTUALIZADO GUARDADO CON LO QUE QUIERE ACTUALIZARSE EL USER (req.body) y (req.file --> si hay img) */
+
+      // Buscamos al user guardado ya actualizado para testear la info
+      const updateUser = await User.findById(req.user._id);
+
+      // SACAR CLAVES DEL req.body para saber que info quiere actualizar este user
+      // Saber lo que el user ha actualizado
+      const updateKeys = Object.keys(req.body);
+
+      console.log("claves del body", updateKeys);
+
+      // Creo un array vacio donde vamos a guardar el test
+      const testUpdate = [];
+
+      // Recorremos las claves que el user quiere actualizar
+      updateKeys.forEach((item) => {
+        // Comprobamos que la info actualizada sea igual a lo que mando el user por la req.body
+        if (updateUser[item] === req.body[item]) {
+          // Doble verificacion comprobando que sea diferente a lo que tenia el user guardado
+          if (updateUser[item] !== req.user[item]) {
+            // Si estas dos verificaciones coinciden se ha actualizado el user de forma correcta
+            //** La clave del user actualizado es diferente a la clave user guardado antes de la actualizacion */
+            //** La clave del user actualizado es igual a la clave que envio el user por la req.body */
+            testUpdate.push({
+              [item]: true,
+            });
+          } else {
+            testUpdate.push({
+              [item]: "Misma info que la antigua",
+            });
+          }
+        } else {
+          testUpdate.push({
+            [item]: false,
+          });
+        }
+      });
+
+      // Tenemos que checkear el req.file por si hay hacer el test
+      if (req.file) {
+        // Si la imagen del user actualizado es igual a la imagen nueva el test es correcto
+        // Si no es igual, no se actualizo y ponemos el test en false
+        updateUser.image === catchImg
+          ? testUpdate.push({ image: true })
+          : testUpdate.push({ image: false });
+      }
+
+      // Si el test de imagen es correcto y el user tiene una imagen diferente a la que viene por defecto se la borramos
+      if (
+        testUpdate.image &&
+        req.user.image !==
+          "https://res.cloudinary.com/dhkbe6djz/image/upload/v1689099748/UserFTProyect/tntqqfidpsmcmqdhuevb.png"
+      ) {
+        deleteImgCloudinary(req.user.image);
+      }
+
+      console.log("TEST UPDATE", testUpdate);
+
+      // una vez finalizado el test lanzamos una respuesta correcta con el user actualizado y el test
+      return res.status(200).json({
+        user: updateUser,
+        test: testUpdate,
+      });
+    } catch (error) {
+      // Error al actualizar el user
+
+      // Si hay un error y el user subio una imagen, esa imagen la borramos
+      if (req.file) {
+        deleteImgCloudinary(catchImg);
+      }
+
+      return res.status(409).json({
+        error: "Error al actualizar el user",
+        message: error.message,
+      });
+    }
+  } catch (error) {
+    // Si hay un error y el user subio una imagen, esa imagen la borramos
+    if (req.file) {
+      deleteImgCloudinary(catchImg);
+    }
+
+    return res.status(409).json({
+      error: "Error general actualizando el user",
+      message: error.message,
+    });
+  }
+};
+
+//! -----------------------------------------------------------------------------
+//? ---------------------------------  DELETE -----------------------------------
+//! -----------------------------------------------------------------------------
+
+const deleteUser = async (req, res, next) => {
+  try {
+    // Buscar al user por el id y borrarlo
+    await User.findByIdAndDelete(req.user._id);
+
+    // Buscamos al user borrado para verificar que se ha borrado
+    const existUser = await User.findById(req.user._id);
+
+    // Si el user no existe se ha borrado correctamente y habria que borrar la imagen si no es la que hay por defecto
+    if (!existUser) {
+      // Borrado de imagen si no es la que hay por defecto
+      req.user.image !==
+        "https://res.cloudinary.com/dhkbe6djz/image/upload/v1689099748/UserFTProyect/tntqqfidpsmcmqdhuevb.png" &&
+        deleteImgCloudinary(req.user.image);
+
+      return res.status(200).json("User borrado");
+    } else {
+      // Error user no borrado
+
+      return res.status(409).json({ error: "Error en el borrado" });
+    }
+  } catch (error) {
+    return res.status(409).json({
+      error: "Error general borrando el user",
       message: error.message,
     });
   }
@@ -697,4 +869,6 @@ module.exports = {
   sendPassword,
   exampleAuth,
   changePassword,
+  updateUser,
+  deleteUser,
 };
