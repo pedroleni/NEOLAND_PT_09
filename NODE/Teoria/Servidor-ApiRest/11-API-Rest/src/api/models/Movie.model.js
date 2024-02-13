@@ -6,6 +6,7 @@ const MovieSchema = new mongoose.Schema(
     year: { type: Number, require: true },
     characters: [{ type: mongoose.Schema.Types.ObjectId, ref: "Character" }],
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   {
     timestamps: true,

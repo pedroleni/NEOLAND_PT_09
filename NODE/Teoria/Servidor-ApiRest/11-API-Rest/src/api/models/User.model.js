@@ -50,10 +50,24 @@ const UserSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+
+    // Id de movies que el user ha dado ha me gusta
     moviesFav: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
+
+    // Id de characters que el user ha dado ha me gusta
     characterFav: [{ type: mongoose.Schema.Types.ObjectId, ref: "Character" }],
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Los que siguen al user
-    followed: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Seguidos por el user
+
+    // Id de los users que siguen al user
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+    // Id de sers seguidos por el user
+    followed: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
+    // Los comentarios que otro user ha realizado a este user
+    commentsByOther: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
+
+    // Comentarios que el user realiza
+    postedComments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   {
     timestamps: true,

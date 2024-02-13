@@ -11,6 +11,9 @@ const { generateToken } = require("../../utils/token");
 const randomPassword = require("../../utils/randomPAssword");
 const randomCode = require("../../utils/randomCode");
 const enumOk = require("../../utils/enumOk");
+const Comment = require("../models/Comment.model");
+const Movie = require("../models/Movie.model");
+const Character = require("../models/Character.model");
 
 //! -----------------------------------------------------------------------------
 //? ----------------------- REGISTER LARGO CON ENVIO DE CÓDIGO AL EMAIL ---------
@@ -829,11 +832,26 @@ const updateUser = async (req, res, next) => {
 //! -----------------------------------------------------------------------------
 
 const deleteUser = async (req, res, next) => {
+  // Creamos array donde se van a almacenar ids de comentarios que hizo este user y que le hicieron a el
+  // Recorreremos estso id para actualizar Users, Movies, y Characters donde aparezcan los comentarios
+  const allComments = []; // ! se guardan id de Comment
+
+  // Recorremos comentarios de otros y por cada uno lo añadimos al array de todos los comentarios
+  req.user.commentsByOther.forEach((comment) => {
+    allComments.push(comment);
+  });
+
+  // Recorremos comentarios que el user hizo y por cada uno lo añadimos al array de todos los comentarios
+  req.user.postedComments.forEach((comment) => {
+    allComments.push(comment);
+  });
+
+  console.log("Todos comentarios", allComments);
   // ** Al borrar un user tendremos que actualizar :
   //** 1) Registros de Movie que en su campo de likes tengan el id de este user borrado */
-  //** 1) Registros de Character que en su campo de likes tengan el id de este user borrado */
-  //** 1) Registros de User que en su campo de followers tengan el id de este user borrado */
-  //** 1) Registros de User que en su campo de followed tengan el id de este user borrado */
+  //** 2) Registros de Character que en su campo de likes tengan el id de este user borrado */
+  //** 3) Registros de User que en su campo de followers tengan el id de este user borrado */
+  //** 4) Registros de User que en su campo de followed tengan el id de este user borrado */
   //** Sacamos el id de estos campos mediante ------- $pull ------ SACARLO */ ( $push --- meter)
   try {
     // Buscar al user por el id y borrarlo
@@ -852,7 +870,116 @@ const deleteUser = async (req, res, next) => {
       // todo ---------- ACTUALIZAR LOS MODELOS QUE CONTIENEN EN SU CAMPO CORRESPONDIENTE ESTE ID ---------
 
       try {
-      } catch (error) {}
+        // Actualizamos los registros de las movies que contengan el id en el campo de likes
+        // La condicion es que en el campo de like aparezca el id del user
+        // La accion es sacar del campo de likes este id
+        await Movie.updateMany(
+          { likes: req.user._id },
+          { $pull: { likes: req.user._id } }
+        );
+
+        try {
+          // Actualizamos character que tenian en su array de likes el id del user
+          await Character.updateMany(
+            { likes: req.user._id },
+            { $pull: { likes: req.user._id } }
+          );
+
+          try {
+            // Actualizamos users que le seguian
+            await User.updateMany(
+              { followed: req.user._id },
+              { $pull: { followed: req.user._id } }
+            );
+
+            // Actualizamos los users a los que el seguia
+            await User.updateMany(
+              { followers: req.user._id },
+              { $pull: { followers: req.user._id } }
+            );
+
+            // !! ---- borrar registros de comentarios que hizo el user y que le hicieron a el
+
+            //!! --- ACTUALIZAR  registros donde aparecen estos id de comentatios que han sido borrados
+
+            try {
+              // Borramos comentarios que iban dirigidos a este user borrado
+              await Comment.deleteMany({
+                recipientUser: req.user._id,
+              });
+
+              // Borramos comentarios de los que el user borrado es dueño (owner)
+              await Comment.deleteMany({
+                owner: req.user._id,
+              });
+
+              // Hemos borrado los comentarios, pero hay que actualizar los registros donde aparecen estos id de los comentarios borrados
+
+              //! Hacemos promise.all porque hay que correr el array de los comentarios y por cada uno realizar una serie de acciones:
+              //! actualizar registros donde aparece este id
+              //! User, Movie, Character
+
+              // Hasta que no hagas todo lo de dentro de la promesa no continues
+              Promise.all(
+                // recorremos array de id de comentarios
+                allComments.map(async (comment) => {
+                  //! Por cada comentarios
+                  //* Actualizamos los user que tenian comentatio del user borrado
+
+                  await User.updateMany(
+                    { commentsByOther: comment },
+                    { $pull: { commentsByOther: comment } }
+                  );
+
+                  //* User que hicieron comentario al user borrado
+                  await User.updateMany(
+                    { postedComments: comment },
+                    { $pull: { postedComments: comment } }
+                  );
+
+                  //* Movies que tiene en comments este comentario
+                  await Movie.updateMany(
+                    { comments: comment },
+                    { $pull: { comments: comment } }
+                  );
+
+                  //* Character que tienen en comments este comentario
+                  await Character.updateMany(
+                    { comments: comment },
+                    { $pull: { comments: comment } }
+                  );
+                })
+              ).then(async () => {
+                return res.status(200).json("User borrado");
+              });
+            } catch (error) {
+              // Error al borrar los comentarios
+              return res.status(409).json({
+                error: "Error borrando comentario",
+                message: error.message,
+              });
+            }
+          } catch (error) {
+            // Error actualizando seguidores y seguidos
+            return res.status(409).json({
+              error: "Error actualizando users",
+              message: error.message,
+            });
+          }
+        } catch (error) {
+          // Error actualizando characters
+          return res.status(409).json({
+            error: "Error actualizando characters",
+            message: error.message,
+          });
+        }
+      } catch (error) {
+        // Error al actualizar peliculas
+        return res.status(409).json({
+          error: "Error actualizando peliculas",
+          message: error.message,
+        });
+      }
     } else {
       // Error user no borrado
 

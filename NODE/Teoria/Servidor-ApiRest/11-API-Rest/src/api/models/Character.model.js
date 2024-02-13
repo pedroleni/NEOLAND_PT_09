@@ -20,7 +20,8 @@ const CharacterSchema = new Schema(
     image: { type: String, required: false },
     // Array de object id que hace referencia a mi MODELO movie -->
     movies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Users" }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
   },
   // Para que salga la fecha de creacion
   {
