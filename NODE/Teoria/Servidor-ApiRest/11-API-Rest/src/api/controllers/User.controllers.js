@@ -480,7 +480,7 @@ const forgotPassword = async (req, res, next) => {
       //! redirect -- 307
       return res.redirect(
         307,
-        `http://localhost:8081/api/v1/user/forgot/sendPassword/${userDB._id}`
+        `http://localhost:${process.env.PORT}/api/v1/user/forgot/sendPassword/${userDB._id}`
       );
     } else {
       // User no encontrado
@@ -915,7 +915,7 @@ const deleteUser = async (req, res, next) => {
 
               // Hemos borrado los comentarios, pero hay que actualizar los registros donde aparecen estos id de los comentarios borrados
 
-              //! Hacemos promise.all porque hay que correr el array de los comentarios y por cada uno realizar una serie de acciones:
+              //! Hacemos promise.all porque hay que recorrer el array de los comentarios y por cada uno realizar una serie de acciones:
               //! actualizar registros donde aparece este id
               //! User, Movie, Character
 
@@ -923,8 +923,8 @@ const deleteUser = async (req, res, next) => {
               Promise.all(
                 // recorremos array de id de comentarios
                 allComments.map(async (comment) => {
-                  //! Por cada comentarios
-                  //* Actualizamos los user que tenian comentatio del user borrado
+                  //! Por cada comentario
+                  //* Actualizamos los user que tenian comentario del user borrado
 
                   await User.updateMany(
                     { commentsByOther: comment },
@@ -993,6 +993,97 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
+//! -----------------------------------------------------------------------------
+//? ----------------------------  TOGGLE LIKE FAV MOVIE -------------------------
+//! -----------------------------------------------------------------------------
+
+// Ruta autenticada
+const addFavMovie = async (req, res, next) => {
+  try {
+    // Pensar lo que vamos a actualizar
+    // --> 1) Movie --> array likes --> necesitamos el id de esta movie (req.params) -- id user (middleware req.user)
+    // --> 2) User --> array moviesFav --> necesitamos id de esta movie (req.params) -- id user (middleware req.user)
+
+    //** recibimos id de movie por req.params
+    //* En la ruta tendremos que añadir al path --> x/:idMovie
+    const { idMovie } = req.params;
+
+    // hacemos destructuring del req.user para obtener su id y su array de moviesFav
+    const { _id, moviesFav } = req.user;
+
+    //* TOGGLE -- hay que ver si este id esta incluido en el array de moviesFav del user --> para sacarlo o meterlo
+
+    if (moviesFav.includes(idMovie)) {
+      // Si lo incluye --> hay que sacarlo $PULL
+
+      try {
+        // Sacamos del user del array de moviesFav el id de la movie que le ha dado ha me gusta
+        await User.findByIdAndUpdate(_id, {
+          $pull: { moviesFav: idMovie },
+        });
+
+        // Sacamos de la movie del array de likes el id del user
+
+        await Movie.findByIdAndUpdate(idMovie, {
+          $pull: { likes: _id },
+        });
+
+        //! ------------- respuesta
+        return res.status(200).json({
+          userUpdate: await User.findById(_id).populate(
+            "charactersFav moviesFav"
+          ),
+          movieUpdate: await Movie.findById(idMovie),
+          action: `pull idMovie: ${idMovie}`,
+        });
+      } catch (error) {
+        // Error al sacar el like
+        return res.status(409).json({
+          error: "Error al sacar el like",
+          message: error.message,
+        });
+      }
+    } else {
+      // No se incluye el id en el array de moviesFav
+      // $PUSH --> añadir este id al array
+
+      try {
+        // Actualizamos el user añadiendo en el campo de moviesFav el id de la movie
+        // findByIdAndUpdate --> 1) id del registro que queremos actualizar 2) Accion pull, push
+        await User.findByIdAndUpdate(_id, {
+          $push: { moviesFav: idMovie },
+        });
+
+        // Actualizamos la movie en su campo de likes añadir el id del user
+        await Movie.findByIdAndUpdate(idMovie, {
+          $push: { likes: _id },
+        });
+
+        //! una vez actualizados enviamos la respuesta
+        return res.status(200).json({
+          userUpdate: await User.findById(_id).populate(
+            "moviesFav charactersFav"
+          ),
+          movieUpdate: await Movie.findById(idMovie),
+          action: `push idMovie: ${idMovie}`,
+        });
+      } catch (error) {
+        // Error al añadir el like
+        return res.status(409).json({
+          error: "Error al añadir el like",
+          message: error.message,
+        });
+      }
+    }
+  } catch (error) {
+    // Error general al añadir o quitar like a movie
+    return res.status(409).json({
+      error: "Error general en el like de movie",
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerLargo,
   registerWithRedirect,
@@ -1007,4 +1098,5 @@ module.exports = {
   changePassword,
   updateUser,
   deleteUser,
+  addFavMovie,
 };

@@ -1,5 +1,7 @@
 const Character = require("../models/Character.model");
+const Comment = require("../models/Comment.model");
 const Movie = require("../models/Movie.model");
+const User = require("../models/User.model");
 
 //? -------------------------------------------------------
 //!--------------------- POST - CREATE --------------------
@@ -136,4 +138,96 @@ const toggleCharacters = async (req, res, next) => {
   }
 };
 
-module.exports = { createMovie, toggleCharacters };
+//? -------------------------------------------------------
+//!------------------------ DELETE ------------------------
+//? -------------------------------------------------------
+
+const deleteMovie = async (req, res, next) => {
+  try {
+    // traemos el id de la movie a borrar mediante destructuring de req.params
+    const { id } = req.params;
+
+    // Buscamos la movie por id para ver si existe
+    const movieId = await Movie.findById(id);
+
+    if (movieId) {
+      // Procedemos a borrarla
+
+      await Movie.findByIdAndDelete(id);
+
+      // Volvemos a buscar la movie para ver si se ha borrado de forma correcta
+
+      const existMovie = await Movie.findById(id);
+
+      //Si esta existMovie no existe es correcto el borrado y procedemos a actualizar registros de datos
+
+      if (!existMovie) {
+        // Hacemos actualizaciones
+        try {
+          // actualizamos Users los que tengan en su campo de moviesFav el id de esta movie borrada
+          await User.updateMany(
+            { moviesFav: id },
+            { $pull: { moviesFav: id } }
+          );
+
+          // Actualizamos characters que tengan en su array de movies el id de esta pelicula borrada
+          await Character.updateMany({ movies: id }, { $pull: { movies: id } });
+
+          try {
+            // Borramos los comentarios que tengan en el campo de recipientMovie este id
+            await Comment.deleteMany({ recipientMovie: id });
+
+            // Debemos recorrer el array de comentarios de la movie y por cada uno actualizar a su user creador
+            // actualizando borrando de su array de postedComments el id de este comentario
+
+            Promise.all(
+              movieId.comments.map(async (comment) => {
+                // Por cada comentario tengo que actualizar al dueño de este comentario
+                // borrando de su campo de postedComments este id del comentario
+
+                await User.updateOne(
+                  { postedComments: comment },
+                  { $pull: { postedComments: comment } }
+                );
+              })
+            ).then(async () => {
+              return res.status(200).json("Movie y comentarios borrados");
+            });
+          } catch (error) {
+            // Error en el borrado de comentarios
+            return res.status(409).json({
+              error: "Error al borrar los comentario de la movie",
+              message: error.message,
+            });
+          }
+        } catch (error) {
+          // Error en la actualizacion de registros
+          return res.status(409).json({
+            error: "Error al actualizar los registros",
+            message: error.message,
+          });
+        }
+      } else {
+        // Error al borrarse la movie
+        return res.status(409).json({
+          error: "Error al borrarse la movie",
+          message: "Intentelo de nuevo",
+        });
+      }
+    } else {
+      // Error la movie no existe
+      return res.status(404).json({
+        error: "Error al buscar la movie",
+        message: "La movie no existe",
+      });
+    }
+  } catch (error) {
+    // Error general al borrar la movie
+    return res.status(409).json({
+      error: "Error general al borral la movie",
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { createMovie, toggleCharacters, deleteMovie };

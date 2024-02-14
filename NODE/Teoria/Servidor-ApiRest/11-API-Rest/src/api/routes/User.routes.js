@@ -14,6 +14,7 @@ const {
   changePassword,
   updateUser,
   deleteUser,
+  addFavMovie,
 } = require("../controllers/User.controllers");
 
 const UserRoutes = require("express").Router();
@@ -41,6 +42,7 @@ UserRoutes.get("/pruebas", [isAuthAdmin], exampleAuth);
 UserRoutes.patch("/changePassword", [isAuth], changePassword);
 UserRoutes.patch("/update", [isAuth], upload.single("image"), updateUser);
 UserRoutes.delete("/delete", [isAuth], deleteUser);
+UserRoutes.patch("/addLikeMovie/:idMovie", [isAuth], addFavMovie);
 
 // ----------------- Controladores usados por redirect
 UserRoutes.post("/register/sendMail/:id", sendCode);

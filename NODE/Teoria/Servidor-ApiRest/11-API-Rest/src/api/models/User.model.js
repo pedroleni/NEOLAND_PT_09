@@ -55,7 +55,7 @@ const UserSchema = new mongoose.Schema(
     moviesFav: [{ type: mongoose.Schema.Types.ObjectId, ref: "Movie" }],
 
     // Id de characters que el user ha dado ha me gusta
-    characterFav: [{ type: mongoose.Schema.Types.ObjectId, ref: "Character" }],
+    charactersFav: [{ type: mongoose.Schema.Types.ObjectId, ref: "Character" }],
 
     // Id de los users que siguen al user
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
