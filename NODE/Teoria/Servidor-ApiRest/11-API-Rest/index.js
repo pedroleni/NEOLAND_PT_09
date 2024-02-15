@@ -40,6 +40,9 @@ app.use("/api/v1/character", CharacterRoutes);
 const MovieRoutes = require("./src/api/routes/Movie.routes");
 app.use("/api/v1/movie", MovieRoutes);
 
+const CommentRoutes = require("./src/api/routes/Comment.routes");
+app.use("/api/v1/comment", CommentRoutes);
+
 //! ----------------- generamos ERROR cuando no se encuentre - coincida la ruta
 
 app.use("*", (req, res, next) => {

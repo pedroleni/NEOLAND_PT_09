@@ -11,7 +11,11 @@ const Schema = mongoose.Schema;
 const CommentSchema = new Schema(
   {
     // User que crea el comentario
-    owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     content: { type: String, required: true },
     // Array de ids de user que les gusta el comentario
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
