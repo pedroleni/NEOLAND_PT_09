@@ -312,8 +312,8 @@ const deleteCharacter = async (req, res, next) => {
               character.comments.map(async (comment) => {
                 // Por cada comentario actualizo al user creador del comentario
                 await User.updateOne(
-                  { postedComments: id },
-                  { $pull: { postedComments: id } }
+                  { postedComments: comment },
+                  { $pull: { postedComments: comment } }
                 );
               })
             ).then(async () => {
