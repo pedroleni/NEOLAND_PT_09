@@ -178,4 +178,98 @@ const createComment = async (req, res, next) => {
   }
 };
 
-module.exports = { createComment };
+//? -------------------------------------------------------
+//!-------------------------- DELETE ----------------------
+//? -------------------------------------------------------
+
+const deleteComment = async (req, res, next) => {
+  try {
+    // obtenemos id de los params
+    const { id } = req.params;
+
+    // Buscamos el comentario
+    const commentDB = await Comment.findById(id);
+
+    // Verificamos si existe para proceder a borrarlo
+    if (commentDB) {
+      // Lo borramos
+      await Comment.findByIdAndDelete(id);
+
+      // Lo buscamos para ver si se borró correctamente
+      const commentDelete = await Comment.findById(id);
+
+      if (!commentDelete) {
+        // Si commentDelete es null se ha borrado
+        // Actualizamos los registros correspondientes
+        // owner, user character o movie a quien iba el comentario
+
+        try {
+          await User.findByIdAndUpdate(commentDB.owner, {
+            $pull: { postedComments: id },
+          });
+
+          console.log("All users", await User.find());
+          console.log(
+            "usuers que han dado ha me gusta al comentario",
+            await User.find({ moviesFav: "65b161176e2bbe2911e1cee6" })
+          );
+          // actualizamos todos los usuarios que han dado ha me gusta al comentario borrado
+          await User.updateMany(
+            { commentsFav: id },
+            { $pull: { commentsFav: id } }
+          );
+          try {
+            await User.findByIdAndUpdate(commentDB.recipientUser, {
+              $pull: { commentsByOther: id },
+            });
+
+            try {
+              await Character.findByIdAndUpdate(commentDB.recipientCharacter, {
+                $pull: { comments: id },
+              });
+
+              try {
+                await Movie.findByIdAndUpdate(commentDB.recipientMovie, {
+                  $pull: { comments: id },
+                });
+
+                return res.status(200).json("Comentario borrado");
+              } catch (error) {
+                return res.status(409).json({
+                  error:
+                    "Error al actualizar la movie que ha recibido el comentario",
+                  message: error.message,
+                });
+              }
+            } catch (error) {
+              return res.status(409).json({
+                error:
+                  "Error al actualizar el character que ha recibido el comentario",
+                message: error.message,
+              });
+            }
+          } catch (error) {
+            return res.status(409).json({
+              error:
+                "Error al actualizar el user que ha recibido el comentario",
+              message: error.message,
+            });
+          }
+        } catch (error) {
+          // error al actualizar el owner
+          return res.status(409).json({
+            error: "Error al actualizar el owner",
+            message: error.message,
+          });
+        }
+      }
+    } else {
+      // El comentario no existe
+    }
+  } catch (error) {
+    return res
+      .status(409)
+      .json({ error: "Error al borrar el comentario", message: error.message });
+  }
+};
+module.exports = { createComment, deleteComment };
