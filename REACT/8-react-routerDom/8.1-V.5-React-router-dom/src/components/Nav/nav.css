@@ -1,0 +1,12 @@
+.active {
+    background-color: aquamarine;
+}
+
+.active button {
+    background-color: aquamarine;
+}
+
+.nav {
+    display: flex;
+    gap: 3rem;
+}
