@@ -5,7 +5,7 @@
 // Devuelve la nueva longitud del array.
 
 
-export function pushCustom(array, ...elementos) {
+function pushCustom(array, ...elementos) {
     for (let index = 0; index < elementos.length; index++) {
         array[array.length] = elementos[index]
     }
@@ -13,9 +13,6 @@ export function pushCustom(array, ...elementos) {
 }
 
 const arr = [1,2,3]
-console.log("🚀 ~ arr:", arr.length)
-
 const response = pushCustom(arr,1)
-console.log("🚀 ~ response:", response)
 
-console.log(arr)
+module.exports = { pushCustom };
