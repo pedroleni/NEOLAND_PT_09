@@ -11,9 +11,15 @@ import {
   Button,
   CardActionArea,
 } from "@mui/material";
+import { useCart } from "../../context/cartContext";
 
 // Componente para renderizar la tarjeta del producto
 const ProductCard = ({ product }) => {
+  const { dispatch } = useCart();
+  const handleAddToCart = () => {
+    const newProduct = { ...product, quantity: 1 };
+    dispatch({ type: "ADD_TO_CART", product: newProduct });
+  };
   return (
     <Card
       sx={{
@@ -53,7 +59,9 @@ const ProductCard = ({ product }) => {
         </CardContent>
       </CardActionArea>
       <CardActions disableSpacing sx={{ justifyContent: "flex-end" }}>
-        {/* Botón para añadir al carrito */}
+        <Button variant="contained" color="primary" onClick={handleAddToCart}>
+          Añadir
+        </Button>
       </CardActions>
     </Card>
   );
