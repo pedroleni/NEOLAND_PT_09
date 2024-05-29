@@ -1,7 +1,3 @@
-// App.jsx
-
-// Importamos React para poder usar JSX y otros features de React
-import React from "react";
 // Importamos nuestro HOC (Higher-Order Component) llamado withDataFetcher
 import withDataFetcher from "./withDataFetcher";
 

@@ -9,8 +9,8 @@ const App = () => {
   return (
     <div>
       <EnhancedComponent
-        title='Título dinámico'
-        message='Este es un mensaje simple.'
+        title='El mejor titulo del mundo.'
+        message='No hay message.'
       />
     </div>
   );
