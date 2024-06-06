@@ -15,6 +15,8 @@ const bookReducer = (state = initalState, action) => {
                 ...state,
                 books: [...state.books, action.payload]
             }
+        default:
+            return state;
     }
 }
 
